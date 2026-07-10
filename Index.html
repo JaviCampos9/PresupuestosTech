@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Presupuestos — Taller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #eef1f3;
+    --panel: #ffffff;
+    --panel-alt: #f7f9fa;
+    --line: #d8dee1;
+    --copper: #b5693d;
+    --copper-dim: #dba784;
+    --teal: #3f7d84;
+    --text: #232a2d;
+    --muted: #6d7679;
+    --danger: #ab3d2e;
+    --mono: 'SFMono-Regular', Consolas, 'Roboto Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    min-height:100vh;
+  }
+  header{
+    padding:22px 20px 16px;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#ffffff,#eef1f3);
+  }
+  .tag{
+    display:inline-block;
+    font-family:'Oswald',sans-serif;
+    font-size:11px;
+    letter-spacing:2px;
+    color:var(--copper);
+    border:1px solid var(--copper-dim);
+    padding:2px 8px;
+    border-radius:2px;
+    margin-bottom:8px;
+  }
+  h1{
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    font-size:22px;
+    margin:0;
+    letter-spacing:0.5px;
+  }
+  h1 span{color:var(--copper);}
+  nav{
+    display:flex;
+    gap:2px;
+    margin:16px 0 0;
+  }
+  .tabbtn{
+    flex:1;
+    font-family:'Oswald',sans-serif;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    font-size:13px;
+    padding:12px 10px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-bottom:none;
+    color:var(--muted);
+    cursor:pointer;
+    transition:background .15s, color .15s;
+  }
+  .tabbtn.active{
+    background:var(--panel-alt);
+    color:var(--copper);
+    border-color:var(--copper-dim);
+  }
+  main{padding:18px 16px 60px; max-width:900px; margin:0 auto;}
+  .view{display:none;}
+  .view.active{display:block;}
+  .card{
+    background:var(--panel-alt);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:16px;
+    margin-bottom:16px;
+  }
+  .card h2{
+    font-family:'Oswald',sans-serif;
+    font-size:14px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 12px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:8px;
+  }
+  .form-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .form-row > div{flex:1; min-width:110px;}
+  label{
+    display:block;
+    font-size:11px;
+    color:var(--muted);
+    margin-bottom:4px;
+    letter-spacing:0.3px;
+  }
+  input, select{
+    width:100%;
+    background:#ffffff;
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:9px 10px;
+    border-radius:3px;
+    font-size:14px;
+    font-family:inherit;
+  }
+  input:focus, select:focus{outline:none; border-color:var(--copper);}
+  input[type=number]{font-family:var(--mono);}
+  button.primary{
+    background:var(--copper);
+    color:#ffffff;
+    border:none;
+    font-family:'Oswald',sans-serif;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    font-size:12.5px;
+    font-weight:600;
+    padding:10px 18px;
+    border-radius:3px;
+    cursor:pointer;
+  }
+  button.primary:hover{background:#9c5730;}
+  button.ghost{
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--muted);
+    padding:8px 12px;
+    border-radius:3px;
+    cursor:pointer;
+    font-size:12px;
+  }
+  button.ghost:hover{border-color:var(--copper-dim); color:var(--copper);}
+  button.ghost.danger-ghost{border-color:var(--danger); color:var(--danger);}
+  table{width:100%; border-collapse:collapse;}
+  th{
+    text-align:left;
+    font-family:'Oswald',sans-serif;
+    font-size:11px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--muted);
+    padding:8px 6px;
+    border-bottom:1px solid var(--line);
+  }
+  td{
+    padding:9px 6px;
+    border-bottom:1px solid #e5e9eb;
+    font-size:14px;
+    vertical-align:middle;
+  }
+  td.num, th.num{text-align:right; font-family:var(--mono);}
+  tr.editing input{padding:6px 8px; font-size:13px;}
+  .price-input{width:90px; display:inline-block;}
+  .unit-badge{
+    font-size:10.5px;
+    color:var(--teal);
+    border:1px solid #b9d3d6;
+    padding:1px 5px;
+    border-radius:2px;
+    letter-spacing:0.5px;
+  }
+  .iconbtn{
+    background:none;
+    border:none;
+    color:var(--muted);
+    cursor:pointer;
+    font-size:13px;
+    padding:3px 6px;
+  }
+  .iconbtn:hover{color:var(--copper);}
+  .iconbtn.danger:hover{color:var(--danger);}
+  .empty{
+    color:var(--muted);
+    font-size:13px;
+    padding:20px 6px;
+    text-align:center;
+    font-style:italic;
+  }
+  /* --- gauge --- */
+  .gauge-wrap{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  .gauge{
+    width:140px; height:140px;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at center, var(--panel) 58%, transparent 59%),
+      conic-gradient(var(--copper) 0deg, var(--copper-dim) 270deg, #dfe4e6 270deg 360deg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    flex-shrink:0;
+    border:1px solid var(--line);
+  }
+  .gauge-inner{
+    text-align:center;
+  }
+  .gauge-inner .lbl{
+    font-family:'Oswald',sans-serif;
+    font-size:9.5px;
+    letter-spacing:1.5px;
+    color:var(--muted);
+    text-transform:uppercase;
+  }
+  .gauge-inner .val{
+    font-family:var(--mono);
+    font-size:19px;
+    color:var(--text);
+    font-weight:600;
+    margin-top:2px;
+  }
+  .job-meta{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .job-meta > div{flex:1; min-width:140px;}
+  .add-line-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:flex-end;
+  }
+  .add-line-row > div{flex:2; min-width:150px;}
+  .add-line-row > div.qty{flex:1; min-width:80px;}
+  .total-row td{
+    font-family:'Oswald',sans-serif;
+    font-size:15px;
+    color:var(--copper);
+    border-top:2px solid var(--copper-dim);
+    border-bottom:none;
+    padding-top:12px;
+  }
+  .actions-row{
+    display:flex;
+    justify-content:space-between;
+    margin-top:14px;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .note{
+    font-size:11.5px;
+    color:var(--muted);
+    margin-top:6px;
+  }
+  @media print{
+    header, nav, .no-print{display:none !important;}
+    body{background:#fff; color:#000;}
+    .card{border:1px solid #ccc; background:#fff;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="tag">TALLER · SEVILLA</span>
+  <h1>Ficha de <span>Presupuestos</span></h1>
+  <nav>
+    <button class="tabbtn active" data-view="materiales">Base de Materiales</button>
+    <button class="tabbtn" data-view="presupuesto">Presupuesto</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ===================== VISTA MATERIALES ===================== -->
+  <section id="view-materiales" class="view active">
+
+    <div class="card">
+      <h2>Añadir material</h2>
+      <div class="form-row">
+        <div>
+          <label>Nombre</label>
+          <input id="m-nombre" type="text" placeholder="Ej. R-32 (kg)">
+        </div>
+        <div>
+          <label>Precio (€)</label>
+          <input id="m-precio" type="number" step="0.01" min="0" placeholder="0.00">
+        </div>
+        <div>
+          <label>Unidad</label>
+          <select id="m-unidad">
+            <option value="ud">Unidad</option>
+            <option value="m">Metro</option>
+            <option value="g">Gramo</option>
+            <option value="l">Litro</option>
+          </select>
+        </div>
+        <div>
+          <label>Categoría</label>
+          <select id="m-categoria">
+            <option value="Refrigerante">Refrigerante</option>
+            <option value="Repuesto">Repuesto</option>
+            <option value="Consumible">Consumible</option>
+            <option value="Montaje">Montaje</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+      </div>
+      <button class="primary" onclick="addMaterial()">Añadir a la base de datos</button>
+    </div>
+
+    <div class="card">
+      <h2>Materiales guardados</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th class="num">Precio</th>
+            <th>Unidad</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="materiales-body"></tbody>
+      </table>
+      <div id="materiales-empty" class="empty" style="display:none;">Todavía no hay materiales. Añade el primero arriba.</div>
+    </div>
+  </section>
+
+  <!-- ===================== VISTA PRESUPUESTO ===================== -->
+  <section id="view-presupuesto" class="view">
+
+    <div class="card">
+      <h2>Datos del trabajo</h2>
+      <div class="job-meta">
+        <div>
+          <label>Cliente / referencia</label>
+          <input id="p-cliente" type="text" placeholder="Ej. C/ Feria 12 - split salón">
+        </div>
+        <div>
+          <label>Fecha</label>
+          <input id="p-fecha" type="date">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Añadir material al presupuesto</h2>
+      <div class="add-line-row">
+        <div>
+          <label>Material</label>
+          <select id="p-material"></select>
+        </div>
+        <div class="qty">
+          <label>Cantidad</label>
+          <input id="p-cantidad" type="number" step="0.1" min="0" value="1">
+        </div>
+        <div style="flex:0;">
+          <button class="primary" onclick="addLinea()">Añadir</button>
+        </div>
+      </div>
+      <div class="note" id="p-material-empty-note" style="display:none;">No hay materiales en la base de datos. Ve a la pestaña "Base de Materiales" para añadir alguno.</div>
+    </div>
+
+    <div class="card">
+      <h2>Añadir línea manual (mano de obra, desplazamiento, etc.)</h2>
+      <div class="add-line-row">
+        <div>
+          <label>Concepto</label>
+          <input id="man-concepto" type="text" placeholder="Ej. Mano de obra">
+        </div>
+        <div class="qty">
+          <label>Importe (€)</label>
+          <input id="man-importe" type="number" step="0.01" min="0" placeholder="0.00">
+        </div>
+        <div style="flex:0;">
+          <button class="primary" onclick="addLineaManual()">Añadir</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Presupuesto</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th class="num">Cant.</th>
+            <th class="num">Precio</th>
+            <th class="num">Subtotal</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="presupuesto-body"></tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="3">TOTAL</td>
+            <td class="num" id="p-total">0,00 €</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+      <div id="presupuesto-empty" class="empty" style="display:none;">Añade materiales o líneas manuales para empezar el presupuesto.</div>
+    </div>
+
+    <div class="card">
+      <div class="gauge-wrap">
+        <div class="gauge">
+          <div class="gauge-inner">
+            <div class="lbl">Total</div>
+            <div class="val" id="gauge-total">0,00 €</div>
+          </div>
+        </div>
+        <div style="flex:1; min-width:180px;">
+          <div class="actions-row" style="margin-top:0;">
+            <button class="ghost" onclick="window.print()">Imprimir / PDF</button>
+            <button class="ghost" id="btn-reset" onclick="resetPresupuesto()">Vaciar presupuesto</button>
+          </div>
+          <div class="note">Los precios se toman de la base de datos de materiales en el momento de añadir la línea. Si cambias un precio después, las líneas ya añadidas no se actualizan automáticamente — quítala y vuelve a añadirla si quieres el precio nuevo.</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<script>
+// ---------- estado ----------
+let materiales = [];
+let presupuesto = [];
+const STORAGE_MAT = 'taller_materiales_v1';
+const STORAGE_PRES = 'taller_presupuesto_v1';
+
+function cargar(){
+  try{
+    const m = localStorage.getItem(STORAGE_MAT);
+    materiales = m ? JSON.parse(m) : materialesPorDefecto();
+  }catch(e){
+    materiales = materialesPorDefecto();
+  }
+  try{
+    const p = localStorage.getItem(STORAGE_PRES);
+    presupuesto = p ? JSON.parse(p) : [];
+  }catch(e){
+    presupuesto = [];
+  }
+}
+
+function guardarMateriales(){
+  try{ localStorage.setItem(STORAGE_MAT, JSON.stringify(materiales)); }catch(e){}
+}
+function guardarPresupuesto(){
+  try{ localStorage.setItem(STORAGE_PRES, JSON.stringify(presupuesto)); }catch(e){}
+}
+
+function materialesPorDefecto(){
+  return [
+    {id:cid(), nombre:'R-32', precio:18.00, unidad:'g', categoria:'Refrigerante'},
+    {id:cid(), nombre:'R-410A', precio:16.50, unidad:'g', categoria:'Refrigerante'},
+    {id:cid(), nombre:'R-22', precio:22.00, unidad:'g', categoria:'Refrigerante'},
+    {id:cid(), nombre:'R-407C', precio:19.00, unidad:'g', categoria:'Refrigerante'},
+    {id:cid(), nombre:'R-134a', precio:14.00, unidad:'g', categoria:'Refrigerante'},
+    {id:cid(), nombre:'R-1234yf', precio:45.00, unidad:'g', categoria:'Refrigerante'},
+    {id:cid(), nombre:'Freeze (hidrocarburo)', precio:12.00, unidad:'g', categoria:'Refrigerante'},
+    {id:cid(), nombre:'Tubo de cobre 1/4"', precio:3.20, unidad:'m', categoria:'Consumible'},
+    {id:cid(), nombre:'Condensador / capacitor', precio:9.50, unidad:'ud', categoria:'Repuesto'},
+  ];
+}
+
+function cid(){ return 'x'+Math.random().toString(36).slice(2,10); }
+function fmt(n){ return n.toLocaleString('es-ES',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' €'; }
+
+// ---------- tabs ----------
+document.querySelectorAll('.tabbtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-'+btn.dataset.view).classList.add('active');
+    if(btn.dataset.view === 'presupuesto') renderSelectorMateriales();
+  });
+});
+
+// ---------- materiales ----------
+function addMaterial(){
+  const nombre = document.getElementById('m-nombre').value.trim();
+  const precio = parseFloat(document.getElementById('m-precio').value);
+  const unidad = document.getElementById('m-unidad').value;
+  const categoria = document.getElementById('m-categoria').value;
+  if(!nombre || isNaN(precio) || precio < 0){
+    alert('Pon un nombre y un precio válido.');
+    return;
+  }
+  materiales.push({id:cid(), nombre, precio, unidad, categoria});
+  guardarMateriales();
+  document.getElementById('m-nombre').value = '';
+  document.getElementById('m-precio').value = '';
+  renderMateriales();
+}
+
+let editingMatId = null;
+let pendingDeleteMatId = null;
+
+function pedirEliminarMaterial(id){
+  pendingDeleteMatId = id;
+  editingMatId = null;
+  renderMateriales();
+}
+function cancelarEliminarMaterial(){
+  pendingDeleteMatId = null;
+  renderMateriales();
+}
+function confirmarEliminarMaterial(id){
+  materiales = materiales.filter(m=>m.id!==id);
+  pendingDeleteMatId = null;
+  guardarMateriales();
+  renderMateriales();
+}
+
+function empezarEditarMaterial(id){
+  editingMatId = id;
+  pendingDeleteMatId = null;
+  renderMateriales();
+}
+function cancelarEditarMaterial(){
+  editingMatId = null;
+  renderMateriales();
+}
+function guardarEdicionMaterial(id){
+  const m = materiales.find(x=>x.id===id);
+  if(!m) return;
+  const nombre = document.getElementById('edit-nombre-'+id).value.trim();
+  const precio = parseFloat(document.getElementById('edit-precio-'+id).value);
+  const unidad = document.getElementById('edit-unidad-'+id).value;
+  const categoria = document.getElementById('edit-categoria-'+id).value;
+  if(!nombre || isNaN(precio) || precio < 0){
+    document.getElementById('edit-error-'+id).style.display = 'block';
+    return;
+  }
+  m.nombre = nombre;
+  m.precio = precio;
+  m.unidad = unidad;
+  m.categoria = categoria;
+  editingMatId = null;
+  guardarMateriales();
+  renderMateriales();
+}
+
+const unidadLabel = {ud:'ud', m:'m', g:'g', l:'l'};
+const categoriasList = ['Refrigerante','Repuesto','Consumible','Montaje','Otro'];
+const unidadesList = ['ud','m','g','l'];
+
+function renderMateriales(){
+  const body = document.getElementById('materiales-body');
+  body.innerHTML = '';
+  if(materiales.length === 0){
+    document.getElementById('materiales-empty').style.display = 'block';
+  } else {
+    document.getElementById('materiales-empty').style.display = 'none';
+  }
+  materiales.forEach(m=>{
+    const tr = document.createElement('tr');
+
+    if(editingMatId === m.id){
+      tr.classList.add('editing');
+      tr.innerHTML = `
+        <td><input id="edit-nombre-${m.id}" type="text" value="${escapeHtml(m.nombre)}"></td>
+        <td>
+          <select id="edit-categoria-${m.id}">
+            ${categoriasList.map(c=>`<option value="${c}" ${c===m.categoria?'selected':''}>${c}</option>`).join('')}
+          </select>
+        </td>
+        <td class="num"><input id="edit-precio-${m.id}" class="price-input" type="number" step="0.01" min="0" value="${m.precio}"></td>
+        <td>
+          <select id="edit-unidad-${m.id}">
+            ${unidadesList.map(u=>`<option value="${u}" ${u===m.unidad?'selected':''}>${unidadLabel[u]}</option>`).join('')}
+          </select>
+        </td>
+        <td style="text-align:right; white-space:nowrap;">
+          <button class="iconbtn" title="Guardar" onclick="guardarEdicionMaterial('${m.id}')">✓</button>
+          <button class="iconbtn" title="Cancelar" onclick="cancelarEditarMaterial()">✕</button>
+        </td>`;
+      body.appendChild(tr);
+      const errRow = document.createElement('tr');
+      errRow.id = 'edit-error-row-'+m.id;
+      errRow.innerHTML = `<td colspan="5" style="display:none; color:var(--danger); font-size:12px;" id="edit-error-${m.id}">Pon un nombre y un precio válido.</td>`;
+      body.appendChild(errRow);
+      return;
+    }
+
+    if(pendingDeleteMatId === m.id){
+      tr.innerHTML = `
+        <td colspan="4" style="color:var(--muted);">¿Eliminar "${escapeHtml(m.nombre)}"? Esta acción no se puede deshacer.</td>
+        <td style="text-align:right; white-space:nowrap;">
+          <button class="iconbtn danger" title="Confirmar" onclick="confirmarEliminarMaterial('${m.id}')">✓ Sí</button>
+          <button class="iconbtn" title="Cancelar" onclick="cancelarEliminarMaterial()">✕</button>
+        </td>`;
+      body.appendChild(tr);
+      return;
+    }
+
+    tr.innerHTML = `
+      <td>${escapeHtml(m.nombre)}</td>
+      <td>${escapeHtml(m.categoria||'')}</td>
+      <td class="num">${fmt(m.precio)}</td>
+      <td><span class="unit-badge">${unidadLabel[m.unidad]||m.unidad}</span></td>
+      <td style="text-align:right; white-space:nowrap;">
+        <button class="iconbtn" title="Editar" onclick="empezarEditarMaterial('${m.id}')">✎</button>
+        <button class="iconbtn danger" title="Eliminar" onclick="pedirEliminarMaterial('${m.id}')">✕</button>
+      </td>`;
+    body.appendChild(tr);
+  });
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ---------- presupuesto ----------
+function renderSelectorMateriales(){
+  const sel = document.getElementById('p-material');
+  const prevVal = sel.value;
+  sel.innerHTML = '';
+  if(materiales.length === 0){
+    document.getElementById('p-material-empty-note').style.display = 'block';
+    return;
+  }
+  document.getElementById('p-material-empty-note').style.display = 'none';
+  materiales.forEach(m=>{
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = `${m.nombre} — ${fmt(m.precio)} / ${unidadLabel[m.unidad]||m.unidad}`;
+    sel.appendChild(opt);
+  });
+  if(prevVal) sel.value = prevVal;
+}
+
+function addLinea(){
+  const matId = document.getElementById('p-material').value;
+  const cantidad = parseFloat(document.getElementById('p-cantidad').value);
+  const m = materiales.find(x=>x.id===matId);
+  if(!m){ alert('Selecciona un material.'); return; }
+  if(isNaN(cantidad) || cantidad <= 0){ alert('Cantidad no válida.'); return; }
+  presupuesto.push({
+    id:cid(),
+    concepto: m.nombre,
+    unidad: m.unidad,
+    cantidad,
+    precio: m.precio,
+    subtotal: cantidad * m.precio
+  });
+  guardarPresupuesto();
+  document.getElementById('p-cantidad').value = 1;
+  renderPresupuesto();
+}
+
+function addLineaManual(){
+  const concepto = document.getElementById('man-concepto').value.trim();
+  const importe = parseFloat(document.getElementById('man-importe').value);
+  if(!concepto || isNaN(importe) || importe < 0){
+    alert('Pon un concepto y un importe válido.');
+    return;
+  }
+  presupuesto.push({
+    id:cid(),
+    concepto,
+    unidad: '',
+    cantidad: 1,
+    precio: importe,
+    subtotal: importe
+  });
+  guardarPresupuesto();
+  document.getElementById('man-concepto').value = '';
+  document.getElementById('man-importe').value = '';
+  renderPresupuesto();
+}
+
+function eliminarLinea(id){
+  presupuesto = presupuesto.filter(l=>l.id!==id);
+  guardarPresupuesto();
+  renderPresupuesto();
+}
+
+let confirmandoReset = false;
+
+function resetPresupuesto(){
+  if(presupuesto.length === 0) return;
+  const btn = document.getElementById('btn-reset');
+  if(!confirmandoReset){
+    confirmandoReset = true;
+    btn.textContent = '¿Seguro? Confirmar';
+    btn.classList.add('danger-ghost');
+    return;
+  }
+  presupuesto = [];
+  confirmandoReset = false;
+  btn.textContent = 'Vaciar presupuesto';
+  btn.classList.remove('danger-ghost');
+  guardarPresupuesto();
+  renderPresupuesto();
+}
+
+function renderPresupuesto(){
+  const body = document.getElementById('presupuesto-body');
+  body.innerHTML = '';
+  if(presupuesto.length === 0){
+    document.getElementById('presupuesto-empty').style.display = 'block';
+  } else {
+    document.getElementById('presupuesto-empty').style.display = 'none';
+  }
+  let total = 0;
+  presupuesto.forEach(l=>{
+    total += l.subtotal;
+    const tr = document.createElement('tr');
+    const cantidadTxt = l.unidad ? `${l.cantidad} ${unidadLabel[l.unidad]||l.unidad}` : '—';
+    tr.innerHTML = `
+      <td>${escapeHtml(l.concepto)}</td>
+      <td class="num">${cantidadTxt}</td>
+      <td class="num">${fmt(l.precio)}</td>
+      <td class="num">${fmt(l.subtotal)}</td>
+      <td style="text-align:right;"><button class="iconbtn danger" title="Quitar" onclick="eliminarLinea('${l.id}')">✕</button></td>`;
+    body.appendChild(tr);
+  });
+  document.getElementById('p-total').textContent = fmt(total);
+  document.getElementById('gauge-total').textContent = fmt(total);
+}
+
+// ---------- init ----------
+cargar();
+renderMateriales();
+renderSelectorMateriales();
+renderPresupuesto();
+document.getElementById('p-fecha').valueAsDate = new Date();
+</script>
+
+</body>
+</html>
